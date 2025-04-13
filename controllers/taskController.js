@@ -18,26 +18,26 @@ exports.createTask = async (req, res) => {
 };
 
 exports.getAllTasks = async (req, res) => {
-  // const defaultLimit = 5;
-  const {
+const {
     page = 1,
-    defaultLimitlimit = 5,
+    limit = 5,
     sortBy = "createdAt",
-    order = "desc",
+    order = "asc",
     status,
   } = req.query;
+
+  const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 100);
 
   const filter = {};
   if (status) filter.status = status;
 
   const sortOrder = order === "asc" ? 1 : -1;
-  const safeLimit = Math.min(parseInt(defaultLimit), 100);
 
   try {
     const tasks = await Task.find(filter)
       .sort({ [sortBy]: sortOrder })
-      .skip((page - 1) * safeLimit)
-      .limit(safeLimit);
+      .skip((page - 1) * parsedLimit)
+      .limit(parsedLimit);
 
     const total = await Task.countDocuments(filter);
 
